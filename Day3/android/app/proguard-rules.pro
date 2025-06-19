@@ -8,3 +8,11 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-keep class com.facebook.react.bridge.** { *; }
+-keep class com.facebook.react.uimanager.** { *; }
+-keep class com.facebook.react.modules.** { *; }
+-keep class com.facebook.react.** { *; }
+-keep class expo.modules.** { *; }  # if using Expo modules
+-keep class okhttp3.** { *; }       # if using axios/fetch etc.
+-dontwarn okhttp3.**
+-dontwarn okio.**
