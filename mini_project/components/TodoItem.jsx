@@ -22,3 +22,4 @@ const styles = StyleSheet.create({
     done: { textDecorationLine: 'line-through', color: 'green' },
     actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
 });
+
