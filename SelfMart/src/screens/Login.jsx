@@ -1,4 +1,14 @@
-import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
 import React, { useState } from 'react';
 import CustomTextInput from '../common/CustomTextInput';
 import CustomButton from '../common/CustomButton';
@@ -13,93 +23,101 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [badEmail, setBaadEmail] = useState(false);
     const [badPassword, setBadPassword] = useState(false);
-    const [modalVisible , setModalVisible] = useState(true);
-
+    const [modalVisible, setModalVisible] = useState(false);
+    
     const handleValidate = () => {
-        setModalVisible(true);
+        let valid = true;
         if (email === '') {
-            setModalVisible(false);
             setBaadEmail(true);
-        }
-        else{
+            valid = false;
+        } else {
             setBaadEmail(false);
         }
+
         if (password === '') {
-            setModalVisible(false);
             setBadPassword(true);
-        }
-        else{
+            valid = false;
+        } else {
             setBadPassword(false);
         }
+
+        return valid;
     };
 
-
-    const getData = async()=>{
+    const getData = async () => {
+        setModalVisible(true); // show loader
         const Email = await AsyncStorage.getItem('EMAIL');
         const Password = await AsyncStorage.getItem('PASSWORD');
 
-        if(Email === email && Password === password){
+        if (Email === email && Password === password) {
             setModalVisible(false);
             navigation.navigate(Home);
-        }else{
+        } else {
             setModalVisible(false);
             Alert.alert('Error', 'Please Enter valid Email ID and Password');
         }
-    }
+    };
+
+    const handleLogin = () => {
+        const isValid = handleValidate();
+        if (isValid) {
+            getData();
+        }
+    };
 
     return (
-        <View style={styles.container}>
-            <Image source={require('../images/download.png')} style={styles.logo} />
-            <Text style={styles.text}>Login</Text>
-            <CustomTextInput
-                placeholder="Enter your Email ID"
-                value={email}
-                onChangeText={txt => {
-                    setEmail(txt);
-                }}
-                icon={require('../images/email.png')}
-                type={'email'}
-            />
-            {
-                badEmail ? <Text style={{marginTop : 10 , marginLeft : 30 , color:'red'}}>Please Enter Eamil id</Text> : null
-            }
-            <CustomTextInput
-                placeholder="Enter your password"
-                value={password}
-                onChangeText={txt => {
-                    setPassword(txt);
-                }}
-                icon={require('../images/padlock.png')}
-                type={'password'}
-            />
-            {
-                badPassword ? <Text style={{marginTop : 10 , marginLeft : 30 , color:'red'}}>Please Enter password</Text> : null
-            }
-            <CustomButton
-                title={'login'}
-                bgColor={'#FA812F'}
-                textColor={'white'}
-                onPress={() => {
-                    handleValidate();
-                    getData();
-                }}
-            />
-            <Text
-                style={{
-                    fontSize: 15,
-                    fontWeight: '400',
-                    alignSelf: 'center',
-                    marginTop: 20,
-                    textDecorationLine: 'underline',
-                }}
-                onPress={() => {
-                    navigation.navigate('SignUp');
-                }}
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+        >
+            <ScrollView
+                contentContainerStyle={styles.container}
+                keyboardShouldPersistTaps="handled"
             >
-                Create New Account ?
-            </Text>
-            {/* <Loader  modalVisible={modalVisible} setModalVisible={setModalVisible}/> */}
-        </View>
+                <Image source={require('../images/download.png')} style={styles.logo} />
+                <Text style={styles.text}>Login</Text>
+                <CustomTextInput
+                    placeholder="Enter your Email ID"
+                    value={email}
+                    onChangeText={txt => setEmail(txt)}
+                    icon={require('../images/email.png')}
+                    type={'email'}
+                />
+                {badEmail && (
+                    <Text style={styles.errorText}>Please Enter Email ID</Text>
+                )}
+
+                <CustomTextInput
+                    placeholder="Enter your password"
+                    value={password}
+                    onChangeText={txt => setPassword(txt)}
+                    icon={require('../images/padlock.png')}
+                    type={'password'}
+                />
+                {badPassword && (
+                    <Text style={styles.errorText}>Please Enter Password</Text>
+                )}
+
+                <CustomButton
+                    title={'Login'}
+                    bgColor={'#FA812F'}
+                    textColor={'white'}
+                    onPress={handleLogin}
+                />
+
+                <Text
+                    style={styles.createAccountText}
+                    onPress={() => {
+                        navigation.navigate('SignUp');
+                    }}
+                >
+                    Create New Account ?
+                </Text>
+
+                {/* Uncomment below to use loader */}
+                {/* <Loader modalVisible={modalVisible} setModalVisible={setModalVisible} /> */}
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -107,7 +125,8 @@ export default Login;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
+        paddingBottom: 20,
     },
     logo: {
         width: 80,
@@ -120,16 +139,19 @@ const styles = StyleSheet.create({
         marginTop: 30,
         alignSelf: 'center',
         fontSize: 24,
-        fontWeight: 600,
+        fontWeight: '600',
         color: '#000',
     },
-    input: {
+    errorText: {
+        marginTop: 10,
+        marginLeft: 30,
+        color: 'red',
+    },
+    createAccountText: {
+        fontSize: 15,
+        fontWeight: '400',
         alignSelf: 'center',
-        width: '85%',
-        height: 50,
-        borderWidth: 0.5,
-        borderRadius: 10,
-        marginTop: 30,
-        paddingLeft: 20,
+        marginTop: 20,
+        textDecorationLine: 'underline',
     },
 });
